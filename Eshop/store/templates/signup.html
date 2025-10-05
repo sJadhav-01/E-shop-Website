@@ -1,0 +1,89 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <div class="p-6 m-4">
+    <div class="col-lg-5 mx-auto border rounded p-4 m-3">
+      <form action="/signup" method="POST">
+        {% csrf_token %}
+        <h3 class="alert alret-light border rounded">Create an account</h3>
+        {% if error %}
+        <h5 class="alert alert-danger">{{ error }}</h5>
+        {% endif %}
+        <!-- first name -->
+        <div class="form-group p-1">
+          <label for="">First Name</label>
+          <input
+            type="text"
+            name="first_name"
+            id=""
+            class="form-control form-control-sm"
+            placeholder=""
+            value="{{ values.fn }}"
+          />
+        </div>
+
+        <!-- last name  -->
+        <div class="form-group p-1">
+          <label for="">Last name</label>
+          <input
+            type="text"
+            name="last_name"
+            id=""
+            class="form-control form-control-sm"
+            placeholder=""
+            value="{{ values.ln }}"
+          />
+        </div>
+
+        <!-- Phone -->
+        <div class="form-group p-1">
+          <label for="">Phone</label>
+          <input
+            type="text"
+            name="phone"
+            id=""
+            class="form-control form-control-sm"
+            placeholder="9988776655"
+            value="{{ values.ph }}"
+          />
+        </div>
+
+        <!-- email -->
+        <div class="form-group p-1">
+          <label for="">Email</label>
+          <input
+            type="email"
+            name="email"
+            id=""
+            class="form-control form-control-sm"
+            placeholder="example@gmail.com"
+            value="{{ values.em }}"
+          />
+        </div>
+
+        <!-- password -->
+        <div class="form-group p-1">
+          <label for="">Password</label>
+          <input
+            type="password"
+            name="password"
+            id=""
+            class="form-control form-control-sm"
+            placeholder="***********"
+          />
+        </div>
+        <!-- button -->
+
+        <div class="form-group p-1">
+          <input
+            type="submit"
+            value="Create account"
+            class="btn btn-sm btn-info"
+          />
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

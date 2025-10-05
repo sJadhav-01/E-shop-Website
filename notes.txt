@@ -1,0 +1,210 @@
+topics to learn:
+    1. models
+    2. admin site
+    3. crud operations
+    4. password hashing
+    5. authorization
+    6. authentication
+    7. session handling
+    8. csrf token
+    9. template language
+    10. image uploading
+    11. making queries
+    12. middleware
+    13. filters
+
+
+> creating virtual environment in the visual code:
+     
+    using cmd :
+    first install virtual environment  by 'pip install virtualenv'
+    then ' project_folder>virtualenv 'virtual_environment_name' - it will create a virtual environment folder inside project folder.
+    thnen activate virtual environment by going to scripts folder in virtual environment folder and run file 'activate'
+    '....\venv\Scripts>activate'
+    then head back to project_folder and install django and other dependancies.
+
+    using visual code:
+    go to the desired folder and type in terminal python -m venv 'path of the project folder\venv'
+    control+shoft+p - to select python interpreter - enter interpreter path from projectfolder\venv\scripts\python.exe
+    then go to terminal and check if the terminal is in virtual environment
+
+    if error then use below command in PowerShell
+
+        'Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser'
+
+
+> create a project :
+        > django-admin startproject 'project_name"
+
+> create an app:
+        > django-admin startapp 'app_name'
+
+> Crate a superuser:
+    > before creating superuser we have to create a database and to create database we need to run below commands
+         > django-admin manage.py makemigration
+         > django-admin manage.py migrate
+    this will create a database with default tables.
+    then create superuser
+        > python manage.py createsuperuser
+
+> Creating models in an app:
+    we can use models.py file to create different models in one file. or we can also create a package(folder with __init__.py file) in app folder and can make different .py files for each different model used in app
+
+> Displaying uploaded images in html :
+
+    main urls.py add this in uslpatterns list 
+
+        from django.conf import settings
+        from django.conf.urls.static import static
+
+        urlpatterns = [
+            # ... the rest of your URLconf goes here ...
+        ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+        {{ product.image.url }} - this will create a fake url for the end customer
+
+
+> Password hashing using django module called "hashers":
+
+    from django.contrib.auth.hashers import make_password, check-password
+
+    make_password('user_password)  # to hashed the user_password
+
+    check_password('user_password', hashed_password)   # to check the hashed_password with the password provided while login
+
+
+
+> Class based views:
+
+    from django.views import View
+
+    we can create a class to handle all kind of request such as get, post delete with help of View class. so will convert the login view into Login class and will handle all the request methods.
+    
+
+    seperating views for different actions such as login, signup in seperate folder called view in within app folder
+
+
+> Sessions:
+
+    'request.session' provides a dictionary to store session related information about user to maintain cart in eshop kind of website.
+
+    ex. request.session['customer_id'] = customer.id  
+        request.session['customer_email] = customer.email
+         
+        # here customer is an object of the Customer class from the models.
+        
+
+> Performing cart operations with the help of sessions:
+
+    cart can be managed with the dictionaries of product name a quantity of the product. will can create a dictionary in session and will add product choosen by the customer with the quantity of a product. this dictionary will be cleared with new session 
+
+
+> Filters in django (Custom tags and filters):
+
+
+    we need to replace 'add to cart' button to increase or decrease quantity buttons. for that we are going to use 'inbuilt filters of django' 
+
+    > creating a custom filters
+    - create a folder named 'templatetags'
+    - then crate a .py file 
+    - import 'template' from django
+    - use 'register = template.Library()' command
+    - the register custom filter with name which we want to create.
+        ex. 
+            from django import template
+
+            register = template.Library()
+            
+            @register.filter(name='is_in_cart')  # this filter is used to check if the product is present in cart or not
+            def is_in_cart(product, cart):
+                if cart:
+                    keys = cart.keys()
+                    for id in keys:
+                        if int(id) == product.id:  # id(key of dict) is a string so converted into int
+                            return True
+                return False
+
+    - and after creating filter we can use it on html page as below
+        
+        {% if product|is_in_cart:request.session.cart %} 
+
+
+> Navigation through html page by element id 
+
+    - we can navigate through the html page using element_id.
+    - if we put element id with '#' in url, we will get to the perticular html element after page reloading ex. http://127.0.0.1:8000/#17  here 17 is a element_id
+
+
+> Decorator:
+    
+    - Decorator is a fuction which returns a fuction inside it.
+    - we can use decorator on any fuction as it is with '@' sign.
+    - if we want to use decorator with method then we have to call decorator with @method_decorator(decorator) function.
+
+    ex. def number_table():
+
+            def table_fun_middleware(number1, num_list):
+                num_table = []
+                for i in num_list:
+                    num_table.append(i*number1)
+                return num_list
+            
+            return table_fun_middleware()
+                    
+
+> Middleware:
+
+    - if we need to perform any task before handling a request, middleware comes in picture.
+    - for ex. if user is trying to access orders page without logging then, its middleware's job to restrict the user from accessing it and guide user to login page and then get back to orders page.
+
+    > creating middleware :
+
+        def group_of_middleware(get_response):
+
+            def middleware(request):
+                response = get_response(request)
+                return response
+
+            return middleware()
+    
+    
+    > Activationg middleware:
+
+        - add a custom middleware in list of middleware in settings.py.
+        - but if we add middleware there, then it will run everytime.
+        - if we want the middleware to run for only particular action then we can import the middleware on the view file where the view is written for the particular action.
+
+    > Applying middleware:
+
+        - there are several ways to apply middleware.
+
+        1. we can call middleware before view method through methode_decorator
+            ex. 
+                class Orders(View):
+
+                    @method_decorator(auth_middleware)  # calling middleware through method decorator
+                    def get(self, request):
+                        customer = request.session.get('customer')
+                        orders = Order.get_orders_by_customer(customer)
+
+                        return render(request, 'orders.html', {'orders': orders})
+
+
+        2. we can directly call a view through a middleware from urls.py  (this is a preffered way because by this we can see on which views middleware is applied in single sight)
+            ex.
+                urlpatterns = [
+                    path('orders', auth_middleware(Orders.as_view()), name='orders')
+                ]
+    
+
+> Hosting Website: (check PYTHONANYWHERE, HEROKU):
+
+    > Steps to follow while hosting a website :
+
+    1. need to upload all the files from the project folder except virtual environment folder.
+    2. create requirements.txt file. activate virtual environment first through terminal. then go to the project folder then type 'pip freeze>requirements.txt'
+    3. then create a zip file of all the folders and except virtual environment folder
+    4. create a repo on github and upload the zip file in repo.
+    5. go to aws console. create an account. 
+    6. will use lightsail service from aws.
+    7. create an instance (a virtual computer) 

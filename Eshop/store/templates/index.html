@@ -1,0 +1,131 @@
+{% extends 'base.html' %} {% block content %} {% load cart_tag %}
+<!-- loading cart(custom filter) -->
+
+<!-- body -->
+
+<div class="container-fluid mt-3">
+  <div class="row">
+    <!-- filters( to show categories ) -->
+    <div id="category" class="col-lg-3 mx-auto">
+      <div class="list-group">
+        <!-- <a href="#" class="list-group-item list-group-item-action active">Active item</a> -->
+        <a href="/" class="list-group-item list-group-item-action"
+          >All products</a
+        >
+        {% for category in categories %}
+        <a
+          href="/?category={{ category.id }}"
+          class="list-group-item list-group-item-action"
+          >{{ category.name }}</a
+        >
+        {% endfor %}
+        <!-- <a href="#" class="list-group-item list-group-item-action disabled">Disabled item</a> -->
+      </div>
+    </div>
+
+    <!-- all products -->
+    <div id="products" class="col-lg-9 mx-auto">
+      <div class="row mx-auto">
+        {% for product in products %}
+        <div
+          class="card mx-auto mb-3 p-2"
+          id="{{product.id}}"
+          style="width: 18rem"
+        >
+          <img
+            src="{{ product.image.url }}"
+            class="card-img-top"
+            alt="..."
+            width="50%"
+            height="60%"
+          />
+          <div class="card-body">
+            <h5 class="card-title">{{product.name}}</h5>
+            <p class="card-text">{{product.description}}</p>
+            <h5 class="card-title">{{product.price|currency}}</h5>
+
+            <!-- {% if request.session.cart %}
+            {{ product|is_in_cart:request.session.cart }}  -->
+            <!-- by this statement product object is passed to the custom filter as parameter and also cart is passed as second parameter by accessing it through request.session.cart and it returns result back -->
+            <!-- {% else %}
+            <P>False</P>
+            {% endif %} -->
+
+            <div class="card-footer p-0 text-center">
+              {% if product|is_in_cart:request.session.cart %}
+              <div class="row text-center">
+                <form action="/#{{product.id}}" method="POST" class="col-2">
+                  {% csrf_token %}
+                  <input
+                    hidden
+                    type="text"
+                    name="product"
+                    value="{{product.id}}"
+                    class="mb-2"
+                  />
+                  <input
+                    hidden
+                    type="text"
+                    name="remove"
+                    value="True"
+                    class="mb-2"
+                  />
+                  <input
+                    type="submit"
+                    value="-"
+                    name="decreament"
+                    class="btn btn-block btn-secondary"
+                  />
+                </form>
+
+                <div class="text-center col-8">
+                  {{product|product_quantity_in_cart:request.session.cart}} in
+                  cart
+                </div>
+
+                <form action="/#{{product.id}}" method="POST" class="col-2">
+                  {% csrf_token %}
+                  <input
+                    hidden
+                    type="text"
+                    name="product"
+                    value="{{product.id}}"
+                    class="mb-2"
+                  />
+                  <!-- product id send again to increase the quantity -->
+                  <input
+                    type="submit"
+                    name="increament"
+                    value="+"
+                    class="btn btn-block btn-secondary"
+                  />
+                </form>
+              </div>
+
+              {% else %}
+              <form action="/#{{product.id}}" method="POST" class="">
+                {% csrf_token %}
+                <input
+                  hidden
+                  type="text"
+                  name="product"
+                  value="{{product.id}}"
+                  class="mb-2"
+                />
+                <input
+                  type="submit"
+                  class="btn btn-light border form-control"
+                  value="Add to cart"
+                />
+              </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
